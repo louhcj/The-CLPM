@@ -1,0 +1,34 @@
+'#load packages
+library(foreign)
+library(lavaan)
+library(tidySEM)
+studydata = read.spss("file.sav", to.data.frame = TRUE)
+clpm <- '
+#paths
+RRB2 ~ RRB1
+RRB3 ~ RRB2
+SUS2 ~ SUS1
+SUS3 ~ SUS2
+PE2 ~ PE1
+PE3 ~ PE2
+SUS2 ~ RRB1
+SUS3 ~ RRB2
+RRB2 ~ SUS1
+RRB3 ~ SUS2
+PE2 ~ SUS1
+PE3 ~ SUS2
+SUS2 ~ PE1 
+SUS3 ~ PE2
+#covariances
+RRB1 ~~ SUS1
+RRB2 ~~ SUS2
+RRB3 ~~ SUS3
+SUS1 ~~ PE1
+SUS2 ~~ PE2
+SUS3 ~~ PE3
+'
+model_fit <- sem(data = studydata, model = clpm, estimator = "MLR", fixed.x = FALSE)
+summary(model_fit, fit.measures = TRUE, standardized = TRUE)
+#visualize model
+path_layout <- get_layout("RRB1", "RRB2", "RRB3", "SUS1", "SUS2", "SUS3", "PE1", "PE2", "PE3", rows = 3)
+graph_sem(model = model_fit, layout = path_layout)
